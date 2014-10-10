@@ -1,0 +1,23 @@
+#!/bin/bash
+
+DIR=<%= @shellshocker_directory %>
+SCRIPT=<%= @shellshocker_script %>
+LOG=$DIR/log
+
+# Update git repository
+printf "\n * Updating Shellshocker\n"
+cd $DIR
+git fetch --all --quiet
+git reset --hard origin/master --quiet
+
+# Run detection script
+printf " * Scanning for bash vulnerabilities: "
+$SCRIPT > $LOG 2>&1
+
+if [ $? -ne 0 ]; then
+  printf "\n"
+  awk '/VULNERABLE/ {print "   - " $0}' $LOG
+  printf "\n"
+else
+  printf "none found.\n\n"
+fi
